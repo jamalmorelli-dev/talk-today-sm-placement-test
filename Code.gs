@@ -25,7 +25,22 @@ function doGet(e) {
  */
 function registerCandidate(candidate) {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.openById("1hYUy0fM5EmVNKB8uBbdjXzYt8PFjMR6xM9Gn_fAzVdM");
+    
+    const scriptProperties = PropertiesService.getScriptProperties();
+    let ssId = scriptProperties.getProperty('SPREADSHEET_ID');
+    let ss;
+    if (ssId) {
+      ss = SpreadsheetApp.openById(ssId);
+    } else {
+      const files = DriveApp.getFilesByName("Talk Today - SM Placement Results");
+      if (files.hasNext()) {
+        ss = SpreadsheetApp.open(files.next());
+        scriptProperties.setProperty('SPREADSHEET_ID', ss.getId());
+      } else {
+        throw new Error("Results spreadsheet not found.");
+      }
+    }
+
     const ANSWER_KEY = {
       6: "B", 7: "A", 8: "C", 9: "C", 10: "A", 11: "B", 12: "C", 13: "A", 14: "B",
       15: "C", 16: "B", 17: "B", 18: "A", 19: "B", 20: "A", 21: "C", 22: "A", 23: "C",
@@ -66,7 +81,22 @@ function registerCandidate(candidate) {
  */
 function logQuestionAnswer(rowNumber, questionNum, answer, securityName) {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.openById("1hYUy0fM5EmVNKB8uBbdjXzYt8PFjMR6xM9Gn_fAzVdM");
+    
+    const scriptProperties = PropertiesService.getScriptProperties();
+    let ssId = scriptProperties.getProperty('SPREADSHEET_ID');
+    let ss;
+    if (ssId) {
+      ss = SpreadsheetApp.openById(ssId);
+    } else {
+      const files = DriveApp.getFilesByName("Talk Today - SM Placement Results");
+      if (files.hasNext()) {
+        ss = SpreadsheetApp.open(files.next());
+        scriptProperties.setProperty('SPREADSHEET_ID', ss.getId());
+      } else {
+        throw new Error("Results spreadsheet not found.");
+      }
+    }
+
     const sheet = ss.getSheetByName("Placement Results");
     if (!sheet) throw new Error("Results sheet not found");
     
@@ -103,7 +133,22 @@ function logQuestionAnswer(rowNumber, questionNum, answer, securityName) {
  */
 function finalizeTestResults(rowNumber, score, level, anticheat, securityName) {
   try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet() || SpreadsheetApp.openById("1hYUy0fM5EmVNKB8uBbdjXzYt8PFjMR6xM9Gn_fAzVdM");
+    
+    const scriptProperties = PropertiesService.getScriptProperties();
+    let ssId = scriptProperties.getProperty('SPREADSHEET_ID');
+    let ss;
+    if (ssId) {
+      ss = SpreadsheetApp.openById(ssId);
+    } else {
+      const files = DriveApp.getFilesByName("Talk Today - SM Placement Results");
+      if (files.hasNext()) {
+        ss = SpreadsheetApp.open(files.next());
+        scriptProperties.setProperty('SPREADSHEET_ID', ss.getId());
+      } else {
+        throw new Error("Results spreadsheet not found.");
+      }
+    }
+
     const sheet = ss.getSheetByName("Placement Results");
     if (!sheet) throw new Error("Results sheet not found");
     
