@@ -194,8 +194,8 @@ function scoreAnswers_(answers) {
 
 function levelFromScore_(score) {
   const s = Number(score) || 0;
-  if (s <= 9) return 'Below Pre-A1 (Starter)';
-  if (s <= 16) return 'Pre-A1 (Low)';
+  if (s <= 6) return 'Below Pre-A1 (Starter)';
+  if (s <= 14) return 'Pre-A1 (Low)';
   if (s <= 23) return 'Pre-A1 (Mid)';
   return 'Pre-A1 (High)';
 }
@@ -478,6 +478,47 @@ function healthCheck() {
   };
 }
 
+
+function findRegistryBySubmissionId_(submissionId) {
+  const id = safeString_(submissionId,100);
+  if (!id) return null;
+  const sh = ensureRegistry_();
+  const last = sh.getLastRow();
+  if (last < 2) return null;
+  const values = sh.getRange(2,1,last-1,13).getValues();
+  for (let i = values.length - 1; i >= 0; i--) {
+    if (String(values[i][2]) === id) {
+      return {
+        found:true,
+        submissionId:id,
+        resultRow:Number(values[i][4]) || 0,
+        status:String(values[i][5] || ''),
+        serverScore:values[i][9] === '' ? null : Number(values[i][9]),
+        answerCount:values[i][11] === '' ? null : Number(values[i][11]),
+        traceId:String(values[i][12] || '')
+      };
+    }
+  }
+  return null;
+}
+
+function submissionStatus_(submissionId) {
+  const hit = findRegistryBySubmissionId_(submissionId);
+  if (!hit) return {found:false,saved:false,submissionId:safeString_(submissionId,100)};
+  hit.saved = hit.status === 'SAVED';
+  hit.receipt = hit.resultRow ? ('SM-' + hit.resultRow + '-CONFIRMED') : '';
+  return hit;
+}
+
+function jsonp_(obj, callback) {
+  const cb = String(callback || '').trim();
+  if (!/^[A-Za-z_$][0-9A-Za-z_$.]*$/.test(cb)) {
+    throw new Error('Invalid JSONP callback.');
+  }
+  return ContentService.createTextOutput(cb + '(' + JSON.stringify(obj) + ');')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
 function doPost(e) {
   const traceId = trace_();
   let action = 'unknown';
@@ -504,6 +545,17 @@ function doPost(e) {
 }
 
 function doGet(e) {
+  if (e && e.parameter && e.parameter.status === '1') {
+    try {
+      const result = submissionStatus_(e.parameter.submissionId || '');
+      if (e.parameter.callback) return jsonp_({success:true,result:result}, e.parameter.callback);
+      return json_({success:true,result:result});
+    } catch (err) {
+      const out = {success:false,error:String(err.message || err)};
+      if (e.parameter.callback) return jsonp_(out, e.parameter.callback);
+      return json_(out);
+    }
+  }
   if (e && e.parameter && e.parameter.health === '1') {
     try {
       return json_({success:true,result:healthCheck()});
