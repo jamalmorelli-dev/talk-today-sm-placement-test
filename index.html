@@ -608,7 +608,7 @@
               withSuccessHandler: function(cb) { this._success = cb; return this; },
               withFailureHandler: function(cb) { this._failure = cb; return this; },
               _execute: function(action, args) {
-                const url = "https://script.google.com/macros/s/AKfycbzDL1kdrIhu5aKnV8iuD2dAGM80J_brCa0lw44OkIqBaQvtoetarAiksmMqbDLTuJQL/exec";
+                const url = "https://script.google.com/macros/s/AKfycbz8HTL75ZnXMjJeUEAYDl-FE3-2I8nVL2oVHrNRTUTXXd_HQl2X1K9mthze5uzyzsst/exec";
                 fetch(url, { method: 'POST', body: JSON.stringify({action: action, args: args}) })
                   .then(res => res.json())
                   .then(res => {
