@@ -1,0 +1,35 @@
+name: Inspect SM save path
+on:
+  push:
+    paths:
+      - '.github/workflows/inspect-sm.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show save/API context
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(errors='replace')
+          needles=['Failed to save','submitPlacementResults','registerCandidate','finalizeTestResults','fetch(url','withSuccessHandler','withFailureHandler']
+          for needle in needles:
+              print('\n===== '+needle+' =====')
+              start=0
+              found=False
+              while True:
+                  i=s.find(needle,start)
+                  if i<0: break
+                  found=True
+                  a=max(0,i-1800); b=min(len(s),i+3000)
+                  print(s[a:b])
+                  print('\n--- MATCH END ---\n')
+                  start=i+len(needle)
+              if not found: print('NOT FOUND')
+          PY
